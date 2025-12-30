@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Mil - A New Year's Key</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff6b8b;
+            --secondary: #6a5af9;
+            --accent: #4dccc6;
+            --light: #fff5f7;
+            --dark: #333344;
+            --gold: #ffd166;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* SPA Container & Pages */
+        #app-container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            z-index: 1;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+
+        /* Glassmorphism Effect for Cards [citation:4] */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* PAGE 1: Landing / Lock Screen */
+        #page-landing {
+            text-align: center;
+            background: radial-gradient(circle at 20% 50%, rgba(106, 90, 249, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 107, 139, 0.1) 0%, transparent 50%);
+        }
+
+        .title-main {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b0b0d0;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        /* Lock Box */
+        .lock-container {
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 25px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .lock-instruction {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #ccc;
+        }
+
+        /* Interactive Keypad */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+            max-width: 300px;
+        }
+
+        .key {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .key:hover {
+            background: rgba(255, 107, 139, 0.2);
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .key:active {
+            transform: scale(0.95);
+        }
+
+        .key-clear {
+            grid-column: span 3;
+            aspect-ratio: unset;
+            height: 50px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            margin-top: 10px;
+        }
+
+        /* Password Display */
+        .password-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            height: 50px;
+        }
+
+        .password-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .password-dot.filled {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .unlock-button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        .unlock-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3);
+        }
+
+        .unlock-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #ff6b8b;
+            margin-top: 15px;
+            height: 20px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* PAGE 2: Main Content (Unlocked) */
+        #page-main {
+            background: radial-gradient(circle at 10% 20%, rgba(77, 204, 198, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(106, 90, 249, 0.1) 0%, transparent 30%);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 107, 139, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .content-section {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            margin-bottom: 30px;
+            display: none;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            margin-bottom: 25px;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        /* Countdown Section */
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .countdown-box {
+            text-align: center;
+            padding: 20px 15px;
+            min-width: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .countdown-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(to bottom, #fff, #b0b0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Message Section */
+        .message-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            text-align: right;
+            color: var(--primary);
+            margin-top: 30px;
+        }
+
+        /* Resolutions Section */
+        .resolutions-list {
+            list-style: none;
+        }
+
+        .resolution-item {
+            padding: 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .resolution-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(10px);
+        }
+
+        .resolution-icon {
+            font-size: 1.5rem;
+            margin-right: 20px;
+            color: var(--accent);
+        }
+
+        /* Success Animation */
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(22, 33, 62, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .success-animation.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-icon {
+            font-size: 8rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+            animation: popIn 0.8s ease 0.3s both;
+        }
+
+        .success-text {
+            font-size: 2.5rem;
+            font-family: 'Dancing Script', cursive;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .success-subtext {
+            font-size: 1.2rem;
+            color: #b0b0d0;
+            animation: fadeInUp 0.8s ease 0.9s both;
+        }
+
+        /* Particles Background [citation:4] */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title-main { font-size: 3rem; }
+            .section-title { font-size: 2.3rem; }
+            .countdown-box { min-width: 90px; padding: 15px 10px; }
+            .countdown-value { font-size: 2.2rem; }
+            .lock-container, .content-section { padding: 30px 20px; }
+            .nav-tab { padding: 10px 20px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Animated Background Particles -->
+        <div class="particles-container" id="particles"></div>
+
+        <!-- PAGE 1: Landing / Lock Screen -->
+        <div class="page active" id="page-landing">
+            <h1 class="title-main">For My Dearest Mil</h1>
+            <p class="subtitle">This message is locked with memories. Find the key to our new beginning.</p>
+
+            <div class="lock-container glass-card">
+                <div class="lock-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <p class="lock-instruction">Enter the 6-digit code to unlock my New Year's message</p>
+
+                <!-- Password Visual Display -->
+                <div class="password-display">
+                    <div class="password-dot" id="dot-1"></div>
+                    <div class="password-dot" id="dot-2"></div>
+                    <div class="password-dot" id="dot-3"></div>
+                    <div class="password-dot" id="dot-4"></div>
+                    <div class="password-dot" id="dot-5"></div>
+                    <div class="password-dot" id="dot-6"></div>
+                </div>
+
+                <!-- Interactive Keypad -->
+                <div class="keypad">
+                    <div class="key" data-value="1">1</div>
+                    <div class="key" data-value="2">2</div>
+                    <div class="key" data-value="3">3</div>
+                    <div class="key" data-value="4">4</div>
+                    <div class="key" data-value="5">5</div>
+                    <div class="key" data-value="6">6</div>
+                    <div class="key" data-value="7">7</div>
+                    <div class="key" data-value="8">8</div>
+                    <div class="key" data-value="9">9</div>
+                    <div class="key" data-value="0">0</div>
+                    <div class="key key-clear" id="key-clear">
+                        <i class="fas fa-backspace"></i> Clear
+                    </div>
+                </div>
+
+                <button class="unlock-button" id="unlock-button" disabled>
+                    <i class="fas fa-key"></i> Unlock The Message
+                </button>
+
+                <div class="error-message" id="error-message"></div>
+            </div>
+
+            <p style="margin-top: 40px; color: #888; font-size: 0.9rem;">
+                Hint: It's a number that marks a new start.
+            </p>
+        </div>
+
+        <!-- PAGE 2: Main Content (Unlocked) -->
+        <div class="page" id="page-main">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-target="countdown">Countdown</div>
+                <div class="nav-tab" data-target="message">My Message</div>
+                <div class="nav-tab" data-target="resolutions">Our Hopes</div>
+                <div class="nav-tab" data-target="memories">Memories</div>
+            </div>
+
+            <!-- Countdown Section -->
+            <div class="content-section glass-card active" id="countdown">
+                <h2 class="section-title">Counting Down to Us</h2>
+                <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem;">
+                    Time until we write a better chapter together...
+                </p>
+                <div class="countdown-container">
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="days">00</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="hours">00</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="minutes">00</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="seconds">00</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Section -->
+            <div class="content-section glass-card" id="message">
+                <h2 class="section-title">To My Mil</h2>
+                <div class="message-text">
+                    <p>As the clock strikes midnight and the world celebrates a new beginning, my thoughts are with you. This past year taught me that distance isn't just about miles, but about unspoken words and misunderstood silence.</p>
+                    <p style="margin-top: 20px;">I've replayed our conversations, both the joyful and the difficult ones, realizing that my pride often built walls where bridges should have been. For every time I failed to listen, for every moment I chose being right over being connected, I am truly sorry.</p>
+                    <p style="margin-top: 20px;">The New Year symbolizes hope—a chance to wipe the slate clean. My greatest hope for 2024 is a fresh start with you. Not by erasing the past, but by learning from it. I want to build a new way of communicating where we both feel heard, valued, and safe.</p>
+                    <p style="margin-top: 20px;">This digital key was a small promise to myself: to put in the effort, to be creative in reaching out, and to show you that you're worth every bit of it.</p>
+                </div>
+                <div class="signature">Always, Rik</div>
+            </div>
+
+            <!-- Resolutions Section -->
+            <div class="content-section glass-card" id="resolutions">
+                <h2 class="section-title">Hopes for 2024</h2>
+                <ul class="resolutions-list">
+                    <li class="resolution-item">
+                        <div class="resolution-icon"><i class="fas fa-comments"></i></div>
+                        <div>
+                            <h3>Listen First</h3>
+                            <p>To hear what you're saying without thinking of my reply.</p>
+                        </div>
+                    </li>
+                    <li class="resolution-item">
+                        <div class="resolution-icon"><i class="fas fa-heart"></i></div>
+                        <div>
+                            <h3>Patience in Progress</h3>
+                            <p>Understanding that rebuilding trust is a journey, not a destination.</p>
+                        </div>
+                    </li>
+                    <li class="resolution-item">
+                        <div class="resolution-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div>
+                            <h3>Consistent Effort</h3>
+                            <p>To show up, not just with grand gestures, but with daily understanding.</p>
+                        </div>
+                    </li>
+                    <li class="resolution-item">
+                        <div class="resolution-icon"><i class="fas fa-seedling"></i></div>
+                        <div>
+                            <h3>New Memories</h3>
+                            <p>To create more moments of laughter than moments of silence.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Memories Section -->
+            <div class="content-section glass-card" id="memories">
+                <h2 class="section-title">Our Moments</h2>
+                <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem;">
+                    A visual countdown of our best moments. Every good memory is a reason to try again.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <div style="background: rgba(255,107,139,0.1); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"><i class="fas fa-laugh-beam"></i></div>
+                        <div>Your Laugh</div>
+                    </div>
+                    <div style="background: rgba(106,90,249,0.1); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--secondary); margin-bottom: 10px;"><i class="fas fa-coffee"></i></div>
+                        <div>Late Talks</div>
+                    </div>
+                    <div style="background: rgba(77,204,198,0.1); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--accent); margin-bottom: 10px;"><i class="fas fa-music"></i></div>
+                        <div>Shared Songs</div>
+                    </div>
+                    <div style="background: rgba(255,209,102,0.1); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--gold); margin-bottom: 10px;"><i class="fas fa-sun"></i></div>
+                        <div>Future Plans</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Animation Overlay -->
+        <div class="success-animation" id="success-animation">
+            <div class="success-icon">
+                <i class="fas fa-lock-open"></i>
+            </div>
+            <div class="success-text">Message Unlocked!</div>
+            <div class="success-subtext">Welcome to my heart, Mil. Happy New Year.</div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== STATE & CONFIG ====================
+        const CORRECT_PASSWORD = "160706";
+        const CURRENT_PASSWORD = [];
+        const dots = [];
+        const keys = [];
+
+        // ==================== DOM ELEMENTS ====================
+        const pageLanding = document.getElementById('page-landing');
+        const pageMain = document.getElementById('page-main');
+        const unlockButton = document.getElementById('unlock-button');
+        const errorMessage = document.getElementById('error-message');
+        const successAnimation = document.getElementById('success-animation');
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initPasswordDots();
+            initKeypad();
+            initNavigation();
+            initCountdown();
+            createParticles(); // Create background particles [citation:4]
+        });
+
+        // ==================== PASSWORD LOGIC ====================
+        function initPasswordDots() {
+            for (let i = 1; i <= 6; i++) {
+                dots.push(document.getElementById(`dot-${i}`));
+            }
+            updatePasswordDisplay();
+        }
+
+        function initKeypad() {
+            // Number keys
+            document.querySelectorAll('.key[data-value]').forEach(key => {
+                keys.push(key);
+                key.addEventListener('click', () => handleKeyPress(key.dataset.value));
+            });
+            // Clear key
+            document.getElementById('key-clear').addEventListener('click', clearPassword);
+            // Unlock button
+            unlockButton.addEventListener('click', checkPassword);
+        }
+
+        function handleKeyPress(value) {
+            if (CURRENT_PASSWORD.length >= 6) return;
+            CURRENT_PASSWORD.push(value);
+            updatePasswordDisplay();
+        }
+
+        function clearPassword() {
+            CURRENT_PASSWORD.length = 0;
+            updatePasswordDisplay();
+            hideError();
+        }
+
+        function updatePasswordDisplay() {
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('filled', index < CURRENT_PASSWORD.length);
+            });
+            unlockButton.disabled = CURRENT_PASSWORD.length !== 6;
+        }
+
+        function checkPassword() {
+            const enteredPassword = CURRENT_PASSWORD.join('');
+            if (enteredPassword === CORRECT_PASSWORD) {
+                showSuccessAnimation();
+            } else {
+                showError("Incorrect code. Try again?");
+                unlockButton.disabled = true;
+                setTimeout(() => {
+                    clearPassword();
+                }, 800);
+            }
+        }
+
+        function showError(text) {
+            errorMessage.textContent = text;
+            errorMessage.style.opacity = '1';
+        }
+
+        function hideError() {
+            errorMessage.style.opacity = '0';
+        }
+
+        // ==================== SUCCESS & PAGE TRANSITION ====================
+        function showSuccessAnimation() {
+            successAnimation.classList.add('active');
+            createConfetti();
+
+            setTimeout(() => {
+                successAnimation.classList.remove('active');
+                pageLanding.classList.remove('active');
+                pageMain.classList.add('active');
+            }, 2500);
+        }
+
+        // ==================== SPA NAVIGATION ====================
+        function initNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    // Update active tab
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    // Show target section
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        }
+
+        // ==================== COUNTDOWN TIMER ====================
+        function initCountdown() {
+            function updateCountdown() {
+                const now = new Date();
+                const newYear = new Date('2024-01-01T00:00:00');
+                const diff = newYear - now;
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+
+                    document.getElementById('days').textContent = String(days).padStart(2, '0');
+                    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                }
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        // ==================== VISUAL EFFECTS ====================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            // Adaptive particle count based on device [citation:4]
+            const particleCount = window.innerWidth < 768 ? 25 : 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                // Random properties
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.animationName = 'confettiFall';
+                particle.style.animationTimingFunction = 'linear';
+                particle.style.animationIterationCount = 'infinite';
+                // Random color
+                const colors = ['#ff6b8b', '#6a5af9', '#4dccc6', '#ffd166'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                container.appendChild(particle);
+            }
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'particle';
+                confetti.style.width = Math.random() * 8 + 4 + 'px';
+                confetti.style.height = Math.random() * 8 + 4 + 'px';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                confetti.style.animationDelay = '0s';
+                confetti.style.animationIterationCount = '1';
+
+                const colors = ['#ff6b8b', '#6a5af9', '#4dccc6', '#ffd166'];
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                container.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        }
+    </script>
+</body>
+</html>
