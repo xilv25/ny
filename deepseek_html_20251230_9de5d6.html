@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Mil - A Hopeful Note</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #ff6b8b; --secondary: #6a5af9; --accent: #4dccc6; --light: #fff5f7; --dark: #333344; --gold: #ffd166; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white; line-height: 1.6; min-height: 100vh; overflow-x: hidden;
+        }
+        #app-container { width: 100%; min-height: 100vh; position: relative; }
+        .page {
+            position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh;
+            padding: 40px 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease; z-index: 1;
+        }
+        .page.active { opacity: 1; visibility: visible; z-index: 2; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        /* PAGE 1: Landing / Lock Screen */
+        #page-landing {
+            text-align: center;
+            background: radial-gradient(circle at 20% 50%, rgba(106, 90, 249, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 107, 139, 0.1) 0%, transparent 50%);
+        }
+        .title-main {
+            font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .subtitle { font-size: 1.2rem; color: #b0b0d0; margin-bottom: 40px; max-width: 600px; }
+        .lock-container { padding: 40px; margin: 30px auto; max-width: 500px; width: 90%; }
+        .lock-icon { font-size: 4rem; color: var(--gold); margin-bottom: 25px; animation: float 3s ease-in-out infinite; }
+        .lock-instruction { font-size: 1.1rem; margin-bottom: 25px; color: #ccc; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; max-width: 300px; }
+        .key {
+            aspect-ratio: 1; border-radius: 50%; background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center;
+            justify-content: center; font-size: 1.8rem; font-weight: 500; cursor: pointer;
+            transition: all 0.3s ease; user-select: none;
+        }
+        .key:hover { background: rgba(255, 107, 139, 0.2); border-color: var(--primary); transform: scale(1.05); }
+        .key:active { transform: scale(0.95); }
+        .key-clear { grid-column: span 3; aspect-ratio: unset; height: 50px; border-radius: 25px; background: rgba(255, 255, 255, 0.08); margin-top: 10px; }
+        .password-display { display: flex; justify-content: center; gap: 15px; margin: 25px 0; height: 50px; }
+        .password-dot { width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); transition: all 0.3s ease; }
+        .password-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .unlock-button {
+            padding: 15px 40px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none; border-radius: 50px; color: white; font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 20px; letter-spacing: 1px;
+        }
+        .unlock-button:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3); }
+        .unlock-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .error-message { color: #ff6b8b; margin-top: 15px; height: 20px; font-weight: 500; opacity: 0; transition: opacity 0.3s ease; }
+        /* PAGE 2: Main Content (Unlocked) */
+        #page-main {
+            background: radial-gradient(circle at 10% 20%, rgba(77, 204, 198, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(106, 90, 249, 0.1) 0%, transparent 30%);
+        }
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
+        .nav-tab {
+            padding: 12px 30px; background: rgba(255, 255, 255, 0.05); border-radius: 50px; cursor: pointer;
+            transition: all 0.3s ease; border: 1px solid transparent; font-weight: 500;
+        }
+        .nav-tab:hover { background: rgba(255, 255, 255, 0.1); }
+        .nav-tab.active { background: rgba(255, 107, 139, 0.2); border-color: var(--primary); color: var(--primary); }
+        .content-section {
+            width: 100%; max-width: 800px; padding: 40px; margin-bottom: 30px; display: none;
+            animation: fadeInUp 0.8s ease;
+        }
+        .content-section.active { display: block; }
+        .section-title {
+            font-family: 'Dancing Script', cursive; font-size: 2.8rem; margin-bottom: 25px;
+            color: var(--accent); text-align: center;
+        }
+        /* Message Section */
+        .message-text {
+            font-size: 1.2rem; line-height: 1.8; margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+        .signature { font-family: 'Dancing Script', cursive; font-size: 2.5rem; text-align: right; color: var(--primary); margin-top: 30px; }
+        /* Hopeful Notes Section */
+        .reference-list { list-style: none; }
+        .reference-item {
+            padding: 25px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px; transition: all 0.3s ease;
+        }
+        .reference-item:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-5px); }
+        .ref-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--accent); display: flex; align-items: center; gap: 12px; }
+        .ref-title i { font-size: 1.3rem; }
+        .ref-desc { color: #ccc; margin-bottom: 15px; line-height: 1.7; }
+        .quote-box {
+            font-style: italic; padding: 20px; margin: 20px 0; background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--gold); border-radius: 0 10px 10px 0; color: #eee;
+        }
+        .quote-author { text-align: right; color: #aaa; font-size: 0.9rem; margin-top: 10px; }
+        /* Success Animation & Particles */
+        .success-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(22, 33, 62, 0.95); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.5s ease;
+        }
+        .success-animation.active { opacity: 1; visibility: visible; }
+        .success-icon { font-size: 8rem; color: var(--gold); margin-bottom: 30px; animation: popIn 0.8s ease 0.3s both; }
+        .success-text { font-size: 2.5rem; font-family: 'Dancing Script', cursive; margin-bottom: 20px; animation: fadeInUp 0.8s ease 0.6s both; }
+        .success-subtext { font-size: 1.2rem; color: #b0b0d0; animation: fadeInUp 0.8s ease 0.9s both; }
+        .particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle {
+            position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.5); border-radius: 50%;
+        }
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes confettiFall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title-main { font-size: 3rem; } .section-title { font-size: 2.3rem; }
+            .lock-container, .content-section { padding: 30px 20px; }
+            .nav-tab { padding: 10px 20px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div class="particles-container" id="particles"></div>
+        <!-- PAGE 1: Landing / Lock Screen -->
+        <div class="page active" id="page-landing">
+            <h1 class="title-main">For My Dearest Mil</h1>
+            <p class="subtitle">This message is locked with memories. Find the key to our new beginning.</p>
+            <div class="lock-container glass-card">
+                <div class="lock-icon"><i class="fas fa-lock"></i></div>
+                <p class="lock-instruction">Enter the 6-digit code to unlock my New Year's message</p>
+                <div class="password-display">
+                    <div class="password-dot" id="dot-1"></div><div class="password-dot" id="dot-2"></div>
+                    <div class="password-dot" id="dot-3"></div><div class="password-dot" id="dot-4"></div>
+                    <div class="password-dot" id="dot-5"></div><div class="password-dot" id="dot-6"></div>
+                </div>
+                <div class="keypad">
+                    <div class="key" data-value="1">1</div><div class="key" data-value="2">2</div><div class="key" data-value="3">3</div>
+                    <div class="key" data-value="4">4</div><div class="key" data-value="5">5</div><div class="key" data-value="6">6</div>
+                    <div class="key" data-value="7">7</div><div class="key" data-value="8">8</div><div class="key" data-value="9">9</div>
+                    <div class="key" data-value="0">0</div>
+                    <div class="key key-clear" id="key-clear"><i class="fas fa-backspace"></i> Clear</div>
+                </div>
+                <button class="unlock-button" id="unlock-button" disabled><i class="fas fa-key"></i> Unlock The Message</button>
+                <div class="error-message" id="error-message"></div>
+            </div>
+            <p style="margin-top: 40px; color: #888; font-size: 0.9rem;">Hint: It's a number that marks a new start.</p>
+        </div>
+        <!-- PAGE 2: Main Content (Unlocked) -->
+        <div class="page" id="page-main">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-target="message">My Message</div>
+                <div class="nav-tab" data-target="hopeful-notes">Hopeful Notes</div>
+            </div>
+            <!-- Message Section -->
+            <div class="content-section glass-card active" id="message">
+                <h2 class="section-title">To My Mil</h2>
+                <div class="message-text">
+                    <p>As the clock strikes midnight and the world celebrates a new beginning, my thoughts are with you. This past year taught me that distance isn't just about miles, but about unspoken words and misunderstood silence.</p>
+                    <p style="margin-top: 20px;">I've replayed our conversations, both the joyful and the difficult ones, realizing that my pride often built walls where bridges should have been. For every time I failed to listen, for every moment I chose being right over being connected, I am truly sorry.</p>
+                    <p style="margin-top: 20px;">The New Year symbolizes hope—a chance to wipe the slate clean. My greatest hope for 2024 is a fresh start with you. Not by erasing the past, but by learning from it. I want to build a new way of communicating where we both feel heard, valued, and safe.</p>
+                    <p style="margin-top: 20px;">This digital key was a small promise to myself: to put in the effort, to be creative in reaching out, and to show you that you're worth every bit of it.</p>
+                </div>
+                <div class="signature">Always, Rik</div>
+            </div>
+            <!-- Hopeful Notes Section (NEW) -->
+            <div class="content-section glass-card" id="hopeful-notes">
+                <h2 class="section-title">Hopeful Notes for a New Start</h2>
+                <p style="text-align: center; color: #ccc; margin-bottom: 30px; font-size: 1.1rem;">
+                    A collection of thoughts and advice on reconciliation, communication, and hope.
+                </p>
+                <ul class="reference-list">
+                    <li class="reference-item">
+                        <h3 class="ref-title"><i class="fas fa-heart"></i> The Psychology of Getting Back Together</h3>
+                        <p class="ref-desc">Experts suggest that successful reconciliations often start with honest self-reflection. It's less about assigning blame and more about understanding what both partners need to feel secure and heard. It requires patience and a genuine willingness to change patterns.</p>
+                    </li>
+                    <li class="reference-item">
+                        <h3 class="ref-title"><i class="fas fa-comments"></i> Building Bridges, Not Walls</h3>
+                        <p class="ref-desc">Effective communication is the cornerstone. This means practicing active listening, expressing feelings without accusation ("I feel" instead of "You always"), and creating a safe space for difficult conversations without fear of immediate judgment.</p>
+                        <div class="quote-box">
+                            "The most important thing in communication is hearing what isn't said."
+                            <div class="quote-author">– Peter Drucker</div>
+                        </div>
+                    </li>
+                    <li class="reference-item">
+                        <h3 class="ref-title"><i class="fas fa-seedling"></i> Nurturing New Growth</h3>
+                        <p class="ref-desc">Think of a fresh start as nurturing a new plant. It needs consistent care, the right environment (mutual respect), and time. You can't rush it. Small, consistent actions of understanding often build more trust than grand, one-time gestures.</p>
+                    </li>
+                    <li class="reference-item">
+                        <h3 class="ref-title"><i class="fas fa-star"></i> Romantic Quotes of Hope</h3>
+                        <p class="ref-desc">Sometimes, words from others can capture what we feel. Here are a few thoughts on second chances:</p>
+                        <div class="quote-box">
+                            "I would rather share one lifetime with you than face all the ages of this world alone."
+                            <div class="quote-author">– Arwen, The Lord of the Rings</div>
+                        </div>
+                        <div class="quote-box" style="margin-top: 15px;">
+                            "Every new beginning comes from some other beginning's end."
+                            <div class="quote-author">– Seneca</div>
+                        </div>
+                    </li>
+                </ul>
+                <p style="text-align: center; margin-top: 40px; color: #aaa; font-style: italic;">
+                    The future is unwritten. Let's make our next chapter a beautiful one.
+                </p>
+            </div>
+        </div>
+        <!-- Success Animation Overlay -->
+        <div class="success-animation" id="success-animation">
+            <div class="success-icon"><i class="fas fa-lock-open"></i></div>
+            <div class="success-text">Message Unlocked!</div>
+            <div class="success-subtext">Welcome to my heart, Mil. Happy New Year.</div>
+        </div>
+    </div>
+    <script>
+        const CORRECT_PASSWORD = "160706";
+        let CURRENT_PASSWORD = [];
+        const dots = [], keys = [];
+        const pageLanding = document.getElementById('page-landing');
+        const pageMain = document.getElementById('page-main');
+        const unlockButton = document.getElementById('unlock-button');
+        const errorMessage = document.getElementById('error-message');
+        const successAnimation = document.getElementById('success-animation');
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 1; i <= 6; i++) dots.push(document.getElementById(`dot-${i}`));
+            document.querySelectorAll('.key[data-value]').forEach(key => {
+                keys.push(key); key.addEventListener('click', () => handleKeyPress(key.dataset.value));
+            });
+            document.getElementById('key-clear').addEventListener('click', clearPassword);
+            unlockButton.addEventListener('click', checkPassword);
+            initNavigation();
+            createParticles();
+        });
+        function handleKeyPress(value) { if (CURRENT_PASSWORD.length >= 6) return; CURRENT_PASSWORD.push(value); updatePasswordDisplay(); }
+        function clearPassword() { CURRENT_PASSWORD.length = 0; updatePasswordDisplay(); hideError(); }
+        function updatePasswordDisplay() { dots.forEach((dot, index) => { dot.classList.toggle('filled', index < CURRENT_PASSWORD.length); }); unlockButton.disabled = CURRENT_PASSWORD.length !== 6; }
+        function checkPassword() {
+            if (CURRENT_PASSWORD.join('') === CORRECT_PASSWORD) { showSuccessAnimation(); } else {
+                showError("Incorrect code. Try again?"); unlockButton.disabled = true;
+                setTimeout(() => { clearPassword(); }, 800);
+            }
+        }
+        function showError(text) { errorMessage.textContent = text; errorMessage.style.opacity = '1'; }
+        function hideError() { errorMessage.style.opacity = '0'; }
+        function showSuccessAnimation() {
+            successAnimation.classList.add('active'); createConfetti();
+            setTimeout(() => {
+                successAnimation.classList.remove('active');
+                pageLanding.classList.remove('active'); pageMain.classList.add('active');
+            }, 2500);
+        }
+        function initNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(this.dataset.target).classList.add('active');
+                });
+            });
+        }
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = window.innerWidth < 768 ? 25 : 50;
+            for (let i = 0; i < particleCount; i++) {
+                const p = document.createElement('div'); p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%';
+                p.style.animationDuration = (Math.random() * 10 + 10) + 's'; p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.animationName = 'confettiFall'; p.style.animationTimingFunction = 'linear'; p.style.animationIterationCount = 'infinite';
+                const colors = ['#ff6b8b', '#6a5af9', '#4dccc6', '#ffd166']; p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(p);
+            }
+        }
+        function createConfetti() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 100; i++) {
+                const c = document.createElement('div'); c.className = 'particle';
+                c.style.width = Math.random() * 8 + 4 + 'px'; c.style.height = Math.random() * 8 + 4 + 'px';
+                c.style.left = Math.random() * 100 + '%'; c.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                c.style.animationIterationCount = '1';
+                const colors = ['#ff6b8b', '#6a5af9', '#4dccc6', '#ffd166']; c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(c); setTimeout(() => c.remove(), 2000);
+            }
+        }
+    </script>
+</body>
+</html>
